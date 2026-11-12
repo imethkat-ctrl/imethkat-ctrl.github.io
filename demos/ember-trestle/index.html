@@ -1,0 +1,804 @@
+<!DOCTYPE html>
+<html lang="en-AU" data-show-banner="true">
+<head>
+<meta name="robots" content="noindex,nofollow">
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+  <meta name="theme-color" content="#c43c22">
+  <title>Ember Trestle — Food truck in Preston</title>
+  <meta name="description" content="Ember Trestle is a Food truck serving Preston and nearby suburbs. Book us for your Christmas party — a rolling kitchen for backyard parties, offices and summer events across Melbourne.">
+  
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Fraunces:opsz,wght@9..144,500;9..144,600;9..144,700&family=Outfit:wght@400;500;600;700&display=swap" rel="stylesheet">
+  <style>
+    :root {
+      --bg: #0e0f0c;
+      --bg-2: #151611;
+      --bg-3: #1c1d17;
+      --ink: #f6f3eb;
+      --muted: #a39e91;
+      --line: rgba(246, 243, 235, 0.11);
+      --accent: #c43c22;
+      --accent-ink: #ffffff;
+      --accent-soft: color-mix(in srgb, var(--accent) 16%, transparent);
+      --radius: 18px;
+      --font: "Outfit", system-ui, -apple-system, "Segoe UI", sans-serif;
+      --display: "Fraunces", Georgia, "Times New Roman", serif;
+      --banner-h: 0px;
+      --pad: clamp(1.25rem, 4vw, 2.5rem);
+      --max: 1120px;
+    }
+    *, *::before, *::after { box-sizing: border-box; }
+    html { scroll-behavior: smooth; }
+    @media (prefers-reduced-motion: reduce) {
+      html { scroll-behavior: auto; }
+      * { animation: none !important; transition: none !important; }
+    }
+    body {
+      margin: 0;
+      font-family: var(--font);
+      background: var(--bg);
+      color: var(--ink);
+      line-height: 1.55;
+      letter-spacing: -0.011em;
+      padding-top: var(--banner-h);
+      padding-bottom: 5.5rem;
+    }
+    body.has-banner { --banner-h: 48px; }
+    body.has-unofficial { --banner-h: 48px; }
+    body.has-banner.has-unofficial { --banner-h: 96px; }
+    img { max-width: 100%; display: block; }
+    a { color: inherit; }
+    button, input, select, textarea { font: inherit; color: inherit; }
+    .wrap { width: min(var(--max), calc(100% - var(--pad) * 2)); margin-inline: auto; }
+
+    /* Demo sales banner — hide with data-show-banner="false", ?nobanner=1, or the close button */
+    .demo-stack {
+      position: fixed;
+      top: 0; left: 0; right: 0;
+      z-index: 80;
+    }
+    .demo-banner {
+      position: relative;
+      min-height: 48px;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      gap: 0.75rem;
+      padding: 0.45rem 2.6rem 0.45rem 1rem;
+      background: var(--accent);
+      color: var(--accent-ink);
+      font-size: 0.84rem;
+      font-weight: 600;
+      letter-spacing: -0.01em;
+      text-align: center;
+    }
+    .demo-banner-unofficial {
+      background: #f6f3eb;
+      color: #0e0f0c;
+      font-weight: 700;
+      border-bottom: 1px solid rgba(14, 15, 12, 0.12);
+    }
+    .demo-banner-price[hidden],
+    html[data-show-banner="false"] .demo-banner-price,
+    html.nobanner .demo-banner-price { display: none; }
+    html[data-show-banner="false"] body:not(.has-unofficial),
+    html.nobanner body:not(.has-unofficial),
+    body:not(.has-banner):not(.has-unofficial) { --banner-h: 0px; padding-top: 0; }
+    html[data-show-banner="false"] body.has-unofficial,
+    html.nobanner body.has-unofficial,
+    body.has-unofficial:not(.has-banner) { --banner-h: 48px; }
+    .demo-banner .demo-x {
+      position: absolute;
+      right: 0.55rem;
+      top: 50%;
+      transform: translateY(-50%);
+      width: 32px; height: 32px;
+      border: 0;
+      background: transparent;
+      color: inherit;
+      font-size: 1.25rem;
+      line-height: 1;
+      cursor: pointer;
+      opacity: 0.75;
+    }
+    .demo-banner .demo-x:hover { opacity: 1; }
+
+    header.nav {
+      position: sticky;
+      top: var(--banner-h);
+      z-index: 50;
+      backdrop-filter: blur(16px);
+      background: color-mix(in srgb, var(--bg) 78%, transparent);
+      border-bottom: 1px solid var(--line);
+    }
+    .nav-inner {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      gap: 1rem;
+      min-height: 68px;
+    }
+    .brand {
+      font-family: var(--display);
+      font-weight: 600;
+      font-size: 1.15rem;
+      letter-spacing: -0.03em;
+      text-decoration: none;
+      white-space: nowrap;
+      overflow: hidden;
+      text-overflow: ellipsis;
+    }
+    .nav-links {
+      display: flex;
+      align-items: center;
+      gap: 1.35rem;
+      font-size: 0.92rem;
+      color: var(--muted);
+    }
+    .nav-links a { text-decoration: none; }
+    .nav-links a:hover { color: var(--ink); }
+    @media (max-width: 720px) {
+      .nav-links a:not(.btn) { display: none; }
+    }
+
+    .btn {
+      display: inline-flex;
+      align-items: center;
+      justify-content: center;
+      gap: 0.45rem;
+      padding: 0.8rem 1.25rem;
+      border-radius: 999px;
+      border: 1px solid transparent;
+      background: var(--accent);
+      color: var(--accent-ink);
+      text-decoration: none;
+      font-weight: 600;
+      letter-spacing: -0.02em;
+      cursor: pointer;
+      white-space: nowrap;
+    }
+    .btn:hover { filter: brightness(1.08); }
+    .btn-lg { padding: 1rem 1.55rem; font-size: 1.05rem; }
+    .btn-ghost {
+      background: transparent;
+      border-color: var(--line);
+      color: var(--ink);
+    }
+    .btn-ghost:hover { background: var(--bg-3); filter: none; }
+    .phone-icon { width: 1.05em; height: 1.05em; fill: currentColor; }
+
+    .hero {
+      position: relative;
+      padding: clamp(3rem, 9vw, 7.5rem) 0 clamp(3.5rem, 8vw, 6.5rem);
+      overflow: hidden;
+    }
+    .hero::before {
+      content: "";
+      position: absolute;
+      inset: -20% -10% auto auto;
+      width: min(70vw, 720px);
+      height: min(70vw, 720px);
+      background: radial-gradient(circle at center, var(--accent) 0%, transparent 68%);
+      opacity: 0.18;
+      pointer-events: none;
+    }
+    .hero::after {
+      content: "";
+      position: absolute;
+      inset: 0;
+      background-image:
+        linear-gradient(var(--line) 1px, transparent 1px),
+        linear-gradient(90deg, var(--line) 1px, transparent 1px);
+      background-size: 64px 64px;
+      mask-image: radial-gradient(ellipse at 70% 0%, #000 20%, transparent 70%);
+      pointer-events: none;
+      opacity: 0.55;
+    }
+    .hero .wrap { position: relative; z-index: 1; }
+    .eyebrow {
+      display: inline-flex;
+      align-items: center;
+      gap: 0.55rem;
+      font-size: 0.8rem;
+      font-weight: 600;
+      letter-spacing: 0.14em;
+      text-transform: uppercase;
+      color: var(--accent);
+      margin: 0 0 1.1rem;
+    }
+    .eyebrow::before {
+      content: "";
+      width: 8px; height: 8px;
+      border-radius: 50%;
+      background: var(--accent);
+      box-shadow: 0 0 0 6px var(--accent-soft);
+    }
+    .hero h1 {
+      font-family: var(--display);
+      font-weight: 600;
+      font-size: clamp(2.7rem, 8.4vw, 6.15rem);
+      line-height: 0.95;
+      letter-spacing: -0.045em;
+      margin: 0 0 0.85rem;
+      max-width: 16ch;
+    }
+    .hero .trade-line {
+      font-size: clamp(1.15rem, 2.4vw, 1.55rem);
+      color: var(--muted);
+      margin: 0 0 1.15rem;
+      font-weight: 500;
+    }
+    .hero .tagline {
+      font-size: 1.12rem;
+      color: var(--ink);
+      max-width: 38ch;
+      margin: 0 0 2rem;
+      opacity: 0.92;
+    }
+    .cta-row { display: flex; flex-wrap: wrap; gap: 0.75rem; }
+
+    .trust {
+      border-top: 1px solid var(--line);
+      border-bottom: 1px solid var(--line);
+      background: var(--bg-2);
+    }
+    .trust-grid {
+      display: grid;
+      grid-template-columns: repeat(4, 1fr);
+      gap: 1rem;
+      padding: 1.35rem 0;
+    }
+    .trust-item { font-size: 0.92rem; color: var(--muted); }
+    .trust-item strong { display: block; color: var(--ink); font-weight: 600; margin-bottom: 0.15rem; }
+    @media (max-width: 720px) {
+      .trust-grid { grid-template-columns: 1fr 1fr; }
+    }
+
+    section { padding: clamp(3.5rem, 8vw, 6rem) 0; }
+    .sec-kicker {
+      font-size: 0.78rem;
+      font-weight: 600;
+      letter-spacing: 0.14em;
+      text-transform: uppercase;
+      color: var(--accent);
+      margin: 0 0 0.55rem;
+    }
+    .sec-title {
+      font-family: var(--display);
+      font-size: clamp(1.9rem, 4vw, 2.85rem);
+      font-weight: 600;
+      letter-spacing: -0.035em;
+      margin: 0 0 0.5rem;
+      line-height: 1.1;
+    }
+    .sec-lead { color: var(--muted); margin: 0 0 2rem; max-width: 46ch; }
+
+    .services-grid {
+      display: grid;
+      grid-template-columns: repeat(auto-fit, minmax(240px, 1fr));
+      gap: 1rem;
+    }
+    .service-card {
+      background: var(--bg-2);
+      border: 1px solid var(--line);
+      border-radius: var(--radius);
+      padding: 1.35rem 1.3rem 1.45rem;
+      min-height: 160px;
+    }
+    .service-card .num {
+      font-variant-numeric: tabular-nums;
+      font-size: 0.78rem;
+      letter-spacing: 0.08em;
+      color: var(--accent);
+      font-weight: 600;
+      margin-bottom: 1rem;
+    }
+    .service-card h3 {
+      margin: 0 0 0.4rem;
+      font-size: 1.12rem;
+      font-weight: 600;
+      letter-spacing: -0.02em;
+    }
+    .service-card p { margin: 0; color: var(--muted); font-size: 0.95rem; }
+
+    .areas-list { display: flex; flex-wrap: wrap; gap: 0.55rem; }
+    .area-pill {
+      border: 1px solid var(--line);
+      background: var(--bg-2);
+      border-radius: 999px;
+      padding: 0.5rem 0.9rem;
+      font-size: 0.95rem;
+    }
+
+    .reviews-grid {
+      display: grid;
+      grid-template-columns: repeat(auto-fit, minmax(260px, 1fr));
+      gap: 1rem;
+    }
+    .review-card {
+      background: var(--bg-2);
+      border: 1px solid var(--line);
+      border-radius: var(--radius);
+      padding: 1.35rem 1.3rem 1.4rem;
+      display: flex;
+      flex-direction: column;
+      gap: 0.75rem;
+    }
+    .sample-badge {
+      align-self: flex-start;
+      font-size: 0.68rem;
+      font-weight: 700;
+      letter-spacing: 0.08em;
+      text-transform: uppercase;
+      border: 1px dashed color-mix(in srgb, var(--accent) 70%, #fff);
+      color: var(--accent);
+      background: var(--accent-soft);
+      border-radius: 999px;
+      padding: 0.22rem 0.55rem;
+    }
+    .stars { color: var(--accent); letter-spacing: 0.12em; font-size: 0.95rem; }
+    .review-card blockquote {
+      margin: 0;
+      font-family: var(--display);
+      font-size: 1.15rem;
+      font-weight: 500;
+      line-height: 1.35;
+      letter-spacing: -0.02em;
+      flex: 1;
+    }
+    .review-card cite {
+      font-style: normal;
+      color: var(--muted);
+      font-size: 0.9rem;
+    }
+    .reviews-note { margin: 1.1rem 0 0; font-size: 0.85rem; color: var(--muted); }
+    .reviews-placeholder {
+      border: 1px dashed color-mix(in srgb, var(--accent) 55%, var(--line));
+      background: var(--accent-soft);
+      border-radius: var(--radius);
+      padding: 2rem 1.4rem;
+      text-align: center;
+    }
+    .reviews-placeholder p {
+      margin: 0;
+      font-family: var(--display);
+      font-size: clamp(1.35rem, 3vw, 1.85rem);
+      font-weight: 600;
+      letter-spacing: -0.03em;
+    }
+    .reviews-placeholder .reviews-note { margin-top: 0.65rem; }
+
+    .about-grid {
+      display: grid;
+      grid-template-columns: 1fr 1fr;
+      gap: 3rem;
+      align-items: start;
+    }
+    @media (max-width: 800px) { .about-grid { grid-template-columns: 1fr; gap: 1.5rem; } }
+    .about-copy p { margin: 0 0 1rem; color: color-mix(in srgb, var(--ink) 88%, var(--muted)); }
+    .about-meta {
+      background: var(--bg-2);
+      border: 1px solid var(--line);
+      border-radius: var(--radius);
+      padding: 1.4rem 1.4rem 1.2rem;
+    }
+    .about-meta dt { font-size: 0.75rem; letter-spacing: 0.1em; text-transform: uppercase; color: var(--muted); margin: 0 0 0.25rem; }
+    .about-meta dd { margin: 0 0 1rem; font-weight: 600; }
+    .about-meta dd:last-child { margin-bottom: 0; }
+
+    .quote {
+      background:
+        radial-gradient(ellipse at top left, var(--accent-soft), transparent 50%),
+        var(--bg-2);
+      border-top: 1px solid var(--line);
+      border-bottom: 1px solid var(--line);
+    }
+    form.quote-form {
+      display: grid;
+      grid-template-columns: 1fr 1fr;
+      gap: 0.85rem 1rem;
+      max-width: 680px;
+    }
+    @media (max-width: 640px) { form.quote-form { grid-template-columns: 1fr; } }
+    .field { display: flex; flex-direction: column; gap: 0.35rem; }
+    .field.span-2 { grid-column: 1 / -1; }
+    .field label { font-size: 0.85rem; font-weight: 600; }
+    .field input, .field textarea, .field select {
+      background: var(--bg);
+      border: 1px solid var(--line);
+      border-radius: 12px;
+      padding: 0.8rem 0.9rem;
+      outline: none;
+    }
+    .field input:focus, .field textarea:focus, .field select:focus {
+      border-color: color-mix(in srgb, var(--accent) 70%, var(--line));
+      box-shadow: 0 0 0 3px var(--accent-soft);
+    }
+    .field textarea { min-height: 130px; resize: vertical; }
+    .form-note { grid-column: 1 / -1; font-size: 0.85rem; color: var(--muted); margin: 0; }
+    .form-actions { grid-column: 1 / -1; display: flex; flex-wrap: wrap; align-items: center; gap: 0.8rem; }
+
+    footer.site-footer {
+      padding: 2.5rem 0 2rem;
+      color: var(--muted);
+      font-size: 0.92rem;
+    }
+    .foot-grid {
+      display: grid;
+      grid-template-columns: 1.3fr 1fr 1fr;
+      gap: 2rem;
+      margin-bottom: 2rem;
+    }
+    @media (max-width: 720px) { .foot-grid { grid-template-columns: 1fr; gap: 1.4rem; } }
+    footer .brand { display: inline-block; margin-bottom: 0.5rem; color: var(--ink); }
+    footer h3 { margin: 0 0 0.6rem; color: var(--ink); font-size: 0.8rem; letter-spacing: 0.1em; text-transform: uppercase; }
+    footer a { text-decoration: none; }
+    footer a:hover { color: var(--ink); }
+    footer ul { list-style: none; margin: 0; padding: 0; }
+    footer li { margin: 0 0 0.3rem; }
+    .abn {
+      border-top: 1px solid var(--line);
+      padding-top: 1.1rem;
+      display: flex;
+      flex-wrap: wrap;
+      justify-content: space-between;
+      gap: 0.5rem;
+      font-size: 0.82rem;
+    }
+    .abn-placeholder { border-bottom: 1px dashed var(--muted); }
+
+    .call-bar {
+      display: none;
+      position: fixed;
+      left: 0; right: 0; bottom: 0;
+      z-index: 70;
+      padding: 0.7rem 1rem calc(0.7rem + env(safe-area-inset-bottom));
+      background: color-mix(in srgb, var(--bg) 90%, transparent);
+      backdrop-filter: blur(16px);
+      border-top: 1px solid var(--line);
+    }
+    .call-bar .btn { width: 100%; }
+    @media (max-width: 720px) { .call-bar { display: block; } }
+  </style>
+</head>
+<body class="has-banner">
+  <div class="demo-stack" id="demo-stack">
+    <div class="demo-banner demo-banner-price" id="demo-banner" role="note" >
+      <span>Demo site made for Ember Trestle — yours for A$399, live in 24h</span>
+      <button type="button" class="demo-x" id="demo-banner-close" aria-label="Hide demo banner">&times;</button>
+    </div>
+    
+  </div>
+
+  <header class="nav">
+    <div class="wrap nav-inner">
+      <a class="brand" href="#top">Ember Trestle</a>
+      <nav class="nav-links" aria-label="Primary">
+        <a href="#services">Services</a>
+        <a href="#areas">Areas</a>
+        <a href="#reviews">Reviews</a>
+        <a href="#quote">Book your event</a>
+        <a class="btn" href="tel:+61390000500">
+          <svg class="phone-icon" viewBox="0 0 24 24" aria-hidden="true"><path d="M6.6 10.8c1.4 2.8 3.8 5.1 6.6 6.6l2.2-2.2c.3-.3.7-.4 1.1-.3 1.2.4 2.5.6 3.8.6.6 0 1 .4 1 1V20c0 .6-.4 1-1 1C10.6 21 3 13.4 3 4c0-.6.4-1 1-1h3.5c.6 0 1 .4 1 1 0 1.3.2 2.6.6 3.8.1.4 0 .8-.3 1.1L6.6 10.8z"/></svg>
+          Call to book
+        </a>
+      </nav>
+    </div>
+  </header>
+
+  <main id="top">
+    <section class="hero">
+      <div class="wrap">
+        <p class="eyebrow">Food truck · Preston</p>
+        <h1>Ember Trestle</h1>
+        <p class="trade-line">Food truck in Preston and nearby</p>
+        <p class="tagline">Book us for your Christmas party — a rolling kitchen for backyard parties, offices and summer events across Melbourne.</p>
+        <div class="cta-row">
+          <a class="btn btn-lg" href="tel:+61390000500">Call to book · 03 9000 0500</a>
+          <a class="btn btn-lg btn-ghost" href="#quote">Book your event</a>
+        </div>
+      </div>
+    </section>
+
+    <div class="trust">
+      <div class="wrap trust-grid">
+        
+        <div class="trust-item"><strong>Mobile kitchen</strong>Based in Preston, we come to you</div>
+        
+        <div class="trust-item"><strong>Private events</strong>Backyards, offices and Christmas parties</div>
+        
+        <div class="trust-item"><strong>Set menu</strong>Trays and plates, agreed in advance</div>
+        
+        <div class="trust-item"><strong>Easy to book</strong>Call or send the date</div>
+        
+      </div>
+    </div>
+
+    <section id="services">
+      <div class="wrap">
+        <p class="sec-kicker">The menu</p>
+        <h2 class="sec-title">Menu</h2>
+        <p class="sec-lead">A short set menu for events. We confirm the plates with you when you book.</p>
+        <div class="services-grid">
+          
+          <article class="service-card">
+            <div class="num">01</div>
+            <h3>Sliders and rolls</h3>
+            <p>A short, set menu of sliders and rolls for a crowd.</p>
+          </article>
+          
+          <article class="service-card">
+            <div class="num">02</div>
+            <h3>Trays and sides</h3>
+            <p>Shared trays and sides, packed for a party table.</p>
+          </article>
+          
+          <article class="service-card">
+            <div class="num">03</div>
+            <h3>Christmas party bookings</h3>
+            <p>A set menu and a reserved date for a backyard or office Christmas party.</p>
+          </article>
+          
+          <article class="service-card">
+            <div class="num">04</div>
+            <h3>Corporate and private events</h3>
+            <p>Work lunches, birthdays and summer gatherings — we confirm the menu first.</p>
+          </article>
+          
+        </div>
+      </div>
+    </section>
+
+    <section id="areas">
+      <div class="wrap">
+        <p class="sec-kicker">Where we go</p>
+        <h2 class="sec-title">Service areas</h2>
+        <p class="sec-lead">Based around Preston, and happy to travel across nearby suburbs.</p>
+        <div class="areas-list">
+          
+          <span class="area-pill">Preston</span>
+          
+          <span class="area-pill">Thornbury</span>
+          
+          <span class="area-pill">Northcote</span>
+          
+          <span class="area-pill">Reservoir</span>
+          
+          <span class="area-pill">Coburg</span>
+          
+          <span class="area-pill">Melbourne (mobile — ask us about your suburb)</span>
+          
+        </div>
+      </div>
+    </section>
+
+    <section id="reviews">
+      <div class="wrap">
+        
+        
+        <p class="sec-kicker">Kind words</p>
+        <h2 class="sec-title">Reviews</h2>
+        <p class="sec-lead">Sample reviews are shown until real customer reviews are added.</p>
+        <div class="reviews-grid">
+          
+          <article class="review-card">
+            <span class="sample-badge">Sample review</span>
+            <div class="stars" aria-label="5 out of 5">★★★★★</div>
+            <blockquote>“Booked them for a Friday office lunch. Food came out quickly and the team was easy to deal with.”</blockquote>
+            <cite>R. Patel · Preston</cite>
+          </article>
+          
+          <article class="review-card">
+            <span class="sample-badge">Sample review</span>
+            <div class="stars" aria-label="5 out of 5">★★★★★</div>
+            <blockquote>“We used them for a backyard party. Clear communication on the menu and no fuss on the day.”</blockquote>
+            <cite>E. Rossi · Thornbury</cite>
+          </article>
+          
+          <article class="review-card">
+            <span class="sample-badge">Sample review</span>
+            <div class="stars" aria-label="5 out of 5">★★★★★</div>
+            <blockquote>“Asked about a Christmas booking early and got a straight answer on dates and headcount.”</blockquote>
+            <cite>M. Lewis · Northcote</cite>
+          </article>
+          
+        </div>
+        <p class="reviews-note">These are placeholders marked “Sample review”. Real reviews will replace them when the site goes live.</p>
+        
+      </div>
+    </section>
+
+    <section id="about">
+      <div class="wrap about-grid">
+        <div class="about-copy">
+          <p class="sec-kicker">About</p>
+          <h2 class="sec-title">Local, reliable, easy to reach</h2>
+          
+          <p>Ember Trestle is a fictional Melbourne food truck, used as a demo of a ready-made booking site. It is not a real business, and the phone number is a placeholder.</p>
+          
+          <p>The site is built so a real truck could take Christmas-party and event bookings in 24 hours: a clear menu, a tap-to-call button, and a form that goes to the operator’s email. Before go-live we swap in real photos, a real menu, and a real number.</p>
+          
+        </div>
+        <dl class="about-meta">
+          <dt>Business</dt>
+          <dd>Ember Trestle</dd>
+          <dt>Trade</dt>
+          <dd>Food truck</dd>
+          <dt>Based in</dt>
+          <dd>Preston, Melbourne</dd>
+          
+          
+          <dt>Hours</dt>
+          <dd>Event bookings, including evenings and weekends · Public pitch dates posted when booked</dd>
+          
+          
+          <dt>Call</dt>
+          <dd><a href="tel:+61390000500">03 9000 0500</a></dd>
+          
+          <dt>Email</dt>
+          <dd><a href="mailto:book@embertrestle.example">book@embertrestle.example</a></dd>
+        </dl>
+      </div>
+    </section>
+
+    <section class="quote" id="quote">
+      <div class="wrap">
+        <p class="sec-kicker">Get in touch</p>
+        <h2 class="sec-title">Book us for your Christmas party</h2>
+        <p class="sec-lead">Tell us the date, suburb and headcount. We’ll come back to you with what’s possible and a clear price.</p>
+        <form class="quote-form" id="quote-form" action="mailto:book@embertrestle.example" method="post" enctype="text/plain">
+          <div class="field">
+            <label for="q-name">Your name</label>
+            <input id="q-name" name="name" type="text" autocomplete="name" required>
+          </div>
+          <div class="field">
+            <label for="q-phone">Phone</label>
+            <input id="q-phone" name="phone" type="tel" autocomplete="tel" required>
+          </div>
+          <div class="field">
+            <label for="q-suburb">Suburb</label>
+            <input id="q-suburb" name="suburb" type="text" value="Preston" autocomplete="address-level2">
+          </div>
+          <div class="field">
+            <label for="q-email">Email (optional)</label>
+            <input id="q-email" name="email" type="email" autocomplete="email">
+          </div>
+          <div class="field span-2">
+            <label for="q-job">Date, suburb, headcount and anything we should know</label>
+            <textarea id="q-job" name="job" required placeholder="A short note is plenty."></textarea>
+          </div>
+          <p class="form-note">This form opens your email app and sends a message to book@embertrestle.example. No data is stored on this site.</p>
+          <div class="form-actions">
+            <button class="btn btn-lg" type="submit">Send booking enquiry</button>
+            <a href="mailto:book@embertrestle.example">Or email book@embertrestle.example directly</a>
+          </div>
+        </form>
+      </div>
+    </section>
+  </main>
+
+  <footer class="site-footer">
+    <div class="wrap">
+      <div class="foot-grid">
+        <div>
+          <a class="brand" href="#top">Ember Trestle</a>
+          <p>Food truck serving Preston and nearby Melbourne suburbs.</p>
+        </div>
+        <div>
+          <h3>Contact</h3>
+          <ul>
+            <li><a href="tel:+61390000500">03 9000 0500</a></li>
+            <li><a href="mailto:book@embertrestle.example">book@embertrestle.example</a></li>
+          </ul>
+        </div>
+        <div>
+          <h3>Areas</h3>
+          <ul>
+            
+            <li>Preston</li>
+            
+            <li>Thornbury</li>
+            
+            <li>Northcote</li>
+            
+            <li>Reservoir</li>
+            
+            <li>Coburg</li>
+            
+            <li>Melbourne (mobile — ask us about your suburb)</li>
+            
+          </ul>
+        </div>
+      </div>
+      <div class="abn">
+        <span><span class="abn-placeholder">ABN 00 000 000 000 (placeholder)</span></span>
+        <span>Demo by Helalane · © 2026 Ember Trestle. All rights reserved.</span>
+      </div>
+    </div>
+  </footer>
+
+  
+  <div class="call-bar">
+    <a class="btn btn-lg" href="tel:+61390000500">Call to book · 03 9000 0500</a>
+  </div>
+  
+
+  <script type="application/ld+json">{
+  "@context": "https://schema.org",
+  "@type": "LocalBusiness",
+  "name": "Ember Trestle",
+  "description": "Book us for your Christmas party — a rolling kitchen for backyard parties, offices and summer events across Melbourne.",
+  "email": "book@embertrestle.example",
+  "areaServed": [
+    "Preston",
+    "Thornbury",
+    "Northcote",
+    "Reservoir",
+    "Coburg",
+    "Melbourne (mobile — ask us about your suburb)"
+  ],
+  "address": {
+    "@type": "PostalAddress",
+    "addressLocality": "Preston",
+    "addressRegion": "VIC",
+    "addressCountry": "AU"
+  },
+  "telephone": "+61390000500"
+}</script>
+  <script>
+    (function () {
+      var params = new URLSearchParams(location.search);
+      var html = document.documentElement;
+      var banner = document.getElementById("demo-banner");
+      var stack = document.getElementById("demo-stack");
+      var unofficial = document.getElementById("unofficial-banner");
+      var body = document.body;
+      var show = html.getAttribute("data-show-banner") !== "false";
+      if (params.get("nobanner") === "1" || params.get("banner") === "off") {
+        show = false;
+      }
+      if (localStorage.getItem("hideDemoBanner") === "1") show = false;
+      function setBannerHeight() {
+        var h = stack ? stack.offsetHeight : 0;
+        body.style.setProperty("--banner-h", h + "px");
+        body.style.paddingTop = h + "px";
+      }
+      function apply(on) {
+        if (banner) banner.hidden = !on;
+        body.classList.toggle("has-banner", !!(banner && on));
+        body.classList.toggle("has-unofficial", !!unofficial);
+        html.classList.toggle("nobanner", !on);
+        setBannerHeight();
+      }
+      apply(show);
+      window.addEventListener("resize", setBannerHeight);
+      var closeBtn = document.getElementById("demo-banner-close");
+      if (closeBtn) {
+        closeBtn.addEventListener("click", function () {
+          localStorage.setItem("hideDemoBanner", "1");
+          apply(false);
+        });
+      }
+      var form = document.getElementById("quote-form");
+      var emailTo = "book@embertrestle.example";
+      var biz = "Ember Trestle";
+      if (form) {
+        form.addEventListener("submit", function (e) {
+          e.preventDefault();
+          var name = (document.getElementById("q-name").value || "").trim();
+          var phone = (document.getElementById("q-phone").value || "").trim();
+          var suburb = (document.getElementById("q-suburb").value || "").trim();
+          var mail = (document.getElementById("q-email").value || "").trim();
+          var job = (document.getElementById("q-job").value || "").trim();
+          var subject = "Quote request for " + biz + " (" + suburb + ")";
+          var bodyText = "Name: " + name + "\nPhone: " + phone + "\nSuburb: " + suburb + "\nEmail: " + mail + "\n\n" + job;
+          var href = "mailto:" + emailTo + "?subject=" + encodeURIComponent(subject) + "&body=" + encodeURIComponent(bodyText);
+          window.location.href = href;
+        });
+      }
+    })();
+  </script>
+</body>
+</html>
